@@ -1,0 +1,269 @@
+{% extends 'todo/layout.html' %}
+
+{% block body %}
+    
+    <!-- quote -->
+    <figure id="blockquote" class="text-center">
+        <blockquote class="blockquote">
+            <p id="quote"></p>
+        </blockquote>
+        <figcaption class="blockquote-footer">
+            <cite title="Source Title" id="source"></cite>
+        </figcaption>
+        <button id="boring" class="btn btn-secondary" onclick="getQuote(); return false;">Boring... <i class="fas fa-arrow-circle-right"></i></button>
+    </figure>
+
+    <!-- new task form -->
+    <p style="width: 100%;">
+        <form id="quick-task-form" onsubmit="quickAdd(); reactTest(); return false;">
+            {% csrf_token %}
+            <div class="input-group">
+                <input name="title" class="form-control" id="new-task" type="text" placeholder="Insert pointless obligation here" autocomplete="off" autofocus>
+                <input id="quick-submit" class="btn  btn-primary" type="submit" value="Add">
+            </div>
+    </p>
+    <div style="display: none;">
+            <input name="recipient" class="form-control" placeholder="username">
+
+            <div class="input-group">
+                <textarea name="notes" class="form-control" placeholder="Notes"></textarea>
+            </div>
+            <div class="input-group">
+                <input name="tag" class="form-control" autocomplete="off" placeholder="Label">
+                <input name="date" id="date" type="date" class="form-control date-field" value="{{ date }}">
+            </div>
+        </form>
+    </div>
+    <hr>
+
+    <!-- pagination -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="{% url 'view_tasks' day=yesterday tag="all" %}">                
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <form action="{% url 'date_picker' %}" method="post">
+                    {% csrf_token %}
+                    <input name="date" id="today" class="page-link" type="date" value="{{ date }}" onchange="this.form.submit();">
+                </form>
+            </li>
+                <a class="page-link" href="{% url 'view_tasks' day=tomorrow tag="all" %}">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+
+    <!-- tags -->      
+        <a class="btn btn-outline taglink" style="background-color: white;"href="{% url 'view_tasks' day=date tag="all" %}">All</a>
+    {% for label in labels %}
+        {% if label.name %}
+            
+            <a class="btn taglink bg-gradient" style="background-color: {{ label.color }}"href="{% url 'view_tasks' day=date tag=label.name %}">{{ label.name }}</a>
+        {% endif %}
+    {% endfor %}
+    <h2>
+        {{ display_day }}
+    </h2>
+    <hr>
+    {% if tasks %}
+        <button id="clearSchedule" class="btn btn-danger bg-gradient" onclick="checkAll(); return false;">Clear my schedule</button>
+        <h6 id="nothing" style="display: none;">Nothing to see here</h6>
+    {% else %}
+        <button id="clearSchedule" style="display: none;" class="btn btn-danger" onclick="checkAll(); return false;">Clear my schedule</button>
+        <h6 id="nothing">Nothing to see here</h6>
+    {% endif %}
+
+
+    
+    <!-- tasks -->
+    <div class="accordion" id="accordion">
+        {% for task in tasks %}
+            <div class="accordion-item" id="accordion{{ task.id }}">
+                <h2 class="accordion-header" id="flush-heading{{ task.id }}" style="display: flex;">
+                <input type="checkbox" id="check{{task.id}}" class="form-check-input task" onchange="checkOff({{ task.id}}); return false;" {% if task.done %} checked {% endif %}>
+                <button class="accordion-button collapsed" id="button{{ task.id }}"type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ task.id }}" aria-expanded="false" aria-controls="flush-collapse{{ task.id }}" onclick="editTask({{ task.id }}); return false;">
+                    <div id="title{{ task.id }}">{{ task.title }}</div>
+                    <div class="badge" style="background-color: {{ task.label.color }};">{{ task.label.name }}</div>
+                    {% if task.shares %}
+                        <span class="text-muted">
+                            - sharing with 
+                        {% for share in task.shares %}
+                            {{ share }}
+                        {% endfor %}
+                    {% endif %}
+                    {% if task.overdue %}
+                            <span class="text-danger">
+                                <i class="fas fa-clock"></i>
+                                - past due ({{ task.date }})
+                            </span>
+                    {% endif %}
+                </button>
+                </h2>
+                <div id="flush-collapse{{ task.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ task.id }}" data-bs-parent="#accordion">
+                    <div class="accordion-body">
+                        <form action="{% url 'update' task.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+
+                            Title:
+                            <div class="input-group">
+                                <input id="title-form{{ task.id }}"type="text" name="title" class="form-control" value="{{ task.title }}">
+                                
+                                {% if today %}
+                                    <a class="btn btn-outline-secondary" href="{% url 'not_today' task_id=task.id %}"><i class="fas fa-umbrella-beach"></i> not today</a>
+                                {% endif %}
+                                
+                                <a class="btn btn-outline-primary" href="{% url 'open_page' task.id %}">Open as page</a>
+                            </div>
+                            Notes:
+                            <div id="editor{{ task.id }}" class="editor">
+                                {% if task.description != 'None' %}{{ task.description | safe }}{% endif %}
+                            </div>                           
+                            <input name="description" type="text" value="{{ task.description }}" class="hidden-notes">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-share-square"></i></span>
+                                <input name="recipient" class="form-control" placeholder="username" autocomplete="off" list="friends">
+                                <datalist id="friends">
+                                    {% for friend in friends %}
+                                        <option value="{{ friend.requester.username }}">
+                                    {% endfor %}
+                                </datalist>
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input name="tag" id="label{{ task.id }}" class="form-control" list="datalistOptions" autocomplete="off" placeholder="Label" {% if task.label %}value="{{ task.label.name }}"{% endif %}>
+                                <datalist id="datalistOptions">
+                                    {% for label in labels %}
+                                        <option value="{{ label.name }}">
+                                    {% endfor %}
+                                </datalist>
+                                <input class="form-control" name="date" type="date" value="{{ task.date }}">
+                                <input type="submit" class="btn btn-primary update" value="Update">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>           
+        {% endfor %}
+    </div>
+
+    <!-- share requests  -->
+    {% for request in friend_requests %}
+        <div style="display: flex; justify-content: center;" class="alert alert-primary text-center">
+            <h6 style="align-self: flex-end;">{{ request.requester }} has would like to share tasks with you. Accept?&nbsp;</h6>
+            <form action="{% url 'confirm' %}" method="post">
+                {% csrf_token %}
+                <input name="request_id" hidden value="{{ request.id }}">
+                <input type="submit" class="btn btn-outline-success" value="Ok, I guess">
+            </form>
+            <form action="{% url 'decline' %}" method="post">
+                {% csrf_token %}
+                <input name="request_id" hidden value="{{ request.id }}">
+                <input type="submit" class="btn btn-outline-danger" value="No way, man">
+            </form>
+        </div>
+    {% endfor %}
+
+    <!-- shared tasks -->
+    {% if shared_header %}
+        <h4>Shared with me</h3><hr>
+    {% endif %}
+    {% if shared_tasks %}
+        {% for task in shared_tasks %}
+                {% if not task.task.done %}
+                    <div class="accordion-item" id="accordion{{ task.task.id }}">
+                        <h2 class="accordion-header" id="flush-heading{{ task.task.id }}" style="display: flex;">
+                        <input type="checkbox" id="check{{task.task.id}}" class="form-check-input task" onchange="checkOff({{ task.task.id}}); return false;" {% if task.task.done %} checked {% endif %}>
+                        <button class="accordion-button collapsed" id="button{{ task.task.id }}"type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ task.task.id }}" aria-expanded="false" aria-controls="flush-collapse{{ task.task.id }}" onclick="edittask.task({{ task.task.id }}); return false;">
+                            <div id="title{{ task.task.id }}">{{ task.task.title }}</div>
+                            <div class="badge" style="background-color: {{ task.task.label.color }}">{{ task.task.label.name }}</div>
+                            <div class="text-muted">- shared by {{ task.sender }}</div>
+                        </button>
+                        </h2>
+                        <div id="flush-collapse{{ task.task.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ task.task.id }}" data-bs-parent="#accordion">
+                            <div class="accordion-body">
+                                <form action="{% url 'update' task.task.id %}" method="post">
+                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                    {% csrf_token %}
+                                    Title:
+                                    <div class="input-group">
+                                        <input id="title-form{{ task.task.id }}"type="text" name="title" class="form-control" value="{{ task.task.title }}">
+                                        <a class="btn btn-outline-primary" href="{% url 'open_page' task.task.id %}">Open as page</a>
+                                    </div>
+                                    Notes:
+                                    <div id="editor{{ task.task.id }}" class="editor">
+                                        {{ task.task.description | safe }}
+                                    </div>                           
+                                    <input name="description" type="text" value="{{ task.task.description }}" class="hidden-notes">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-share-square"></i></span>
+                                        <input name="recipient" class="form-control" placeholder="username" autocomplete="off" list="friends">
+                                        <datalist id="friends">
+                                            {% for friend in friends %}
+                                                <option value="{{ friend.requester.username }}">
+                                            {% endfor %}
+                                        </datalist>
+                                        <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                        <input name="tag" id="label" class="form-control" list="datalistOptions" autocomplete="off" placeholder="Label" {% if task.task.label %}value="{{ task.task.label.name }}" {% endif %}>
+                                        <datalist id="datalistOptions">
+                                            {% for label in labels %}
+                                                {% if label != None %}
+                                                    <option value="{{ label.name }}">
+                                                {% endif %}
+                                            {% endfor %}
+                                        </datalist>
+                                        <input class="form-control" name="date" type="date" value="{{ task.task.date }}">
+                                        <input type="submit" class="btn btn-primary update" value="Update">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>    
+                {% endif %}   
+
+        {% endfor %}
+    {% endif %}
+    
+    <!-- new task form -->
+    <hr>
+    <p style="width: 100%;">
+        <form id="new-task-form" action="{% url 'add' %}" method="post">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            {% csrf_token %}
+            <button id="add-task" class="btn btn-outline-primary" type="button" onclick="addTask(); return false;">
+                <i class="far fa-plus-square"></i>&nbsp;&nbsp;Another pointless obligation, this time with detail
+            </button>
+    </p>
+    <div class="shadow p-3 mb-5 bg-white" id="task-form-grow" style="display: none;">
+            <div class="label">Title:</div>
+            <input id="new-task-title" name="title" class="form-control" type="text" placeholder="New task" autocomplete="off">
+            <input name="notes" id="new-notes" class="hidden-notes" placeholder="Notes" style="display: none;">
+            <div class="label">Notes:</div>
+            <div id="editor-new" class="editor"></div>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-share-square"></i></span>
+                <input id="recipient" name="recipient" class="form-control" list="friends" placeholder="username" autocomplete="off">
+                <datalist id="friends">
+                    {% for friend in friends %}
+                        <option value="{{ friend.requester.username }}">
+                    {% endfor %}
+                </datalist>
+                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                <input name="tag" id="label" class="form-control" list="datalistOptions" autocomplete="off" placeholder="Label">
+                <datalist id="datalistOptions">
+                    {% for label in labels %}
+                        {% if label != None %}
+                            <option value="{{ label.name }}">
+                        {% endif %}
+                    {% endfor %}
+                </datalist>
+                <input name="date" id="date-form" type="date" class="form-control date-field" value="{{ date }}">
+                <input class="btn  btn-primary" type="submit" value="Add">
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

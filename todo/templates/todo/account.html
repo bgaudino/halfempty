@@ -1,0 +1,145 @@
+{% extends 'todo/layout.html' %}
+
+{% block body %}
+
+    <h3>Manage Labels</h3>
+    <hr>
+        <div>
+            <ul class="list-group" style="list-style: none;">
+                {% for label in labels %}
+                    <li id="tag-li-{{ label.id }}" class="bg-gradient" style="background-color: {{ label.color }}; height: 60px; padding: 10px 0 0 20px">
+                        <div class="row" id="tag-row{{ label.id }}">
+                            <div id="current-tag" class="col-10">
+                                <span id="tag{{ label.id }}" style="width: 100%; font-size: large;">
+                                    {{ label.name }}
+                                </span>
+                            </div>
+                            <div class="col-2" style="display: flex; justify-content: flex-end;">
+                                <button id="edit{{ label.id }}"class="btn btn-info" onclick="editTag({{ label.id }}); return false;">
+                                        <i class="fas fa-edit"></i>
+                                </button>    
+                                <button id="trash{{ label.id }}" class="btn btn-danger" onclick="deleteTag({{ label.id }}); return false;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="tag-form{{ label.id }}" style="display: none;" class="row">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input class="form-control" id="tag-input{{ label.id }}" type="text">
+                                <span class="input-group-text"><i class="fas fa-palette"></i></span>
+                                <input class="form-control" id="color{{ label.id }}" type="text" value="{{ label.color }}">
+                                <button id="ok{{ label.id }}" class="btn btn-success">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button id="cancel{{ label.id }}" class="btn btn-danger">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <form action="{% url 'add_tag' %}" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input class="form-control" name="name" type="text" placeholder="New label" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    <br>
+    <h3>Manage Sharing</h3>
+    <hr>
+        {% for friend in friends %}
+            <div class="card">
+                <ul class="list-group list-group-flush" style="list-style: none;">
+                    <li id="friend-{{ friend.requestee.id }}" class="friend" style="height: 60px; padding: 10px 0 0 20px">
+                        <div class="row">
+                            <div class="col-11">
+                                <span id="tag{{ label.id }}" style="font-size: large;">
+                                    {{ friend.requestee }} 
+                                    {% if not friend.confirmed %}
+                                        <span class="text-muted"> - waiting for {{ friend.requestee }} to accept.</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="col-1">
+                                <button id="delete_friend" class="btn btn-danger" style="background-color: red;" onclick="deleteFriend({{ friend.requestee.id }}, {{ friend.requester.id }}); return false;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+
+        <form action="{% url 'add_friend' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input name="friend" class="form-control" type="text" placeholder="Username" autocomplete="off">
+                <input class="btn btn-primary" type="submit" value="Add">
+            </div>
+        </form>
+
+    <br>
+    <h3>Custom Theme</h3>
+    <hr>
+    <form action="{% url 'change_theme' %}" method="post">
+        {% csrf_token %}
+        <div class="input-group">
+            <input class="form-control" name="light_color" type="text" placeholder="Light color">
+            <input class="form-control" name="dark_color" type="text" placeholder="Dark color">
+            <input class="btn btn-primary" type="submit">
+        </div>
+    </form>
+    <a class="btn btn-secondary" href="{% url 'default_theme' %}">Restore default</a>
+
+    <br>
+    <h3>Change Password</h3>
+    <hr>
+    <form action="{% url 'change_password' %}" method="post">
+        {% csrf_token %}
+        <input name="password" type="password" class="form-control" placeholder="Current password">
+        <input name="new_password" type="password" class="form-control" placeholder="New password">
+        <input name="confirmation" type="password" class="form-control" placeholder="Confirm new password">
+        <input type="submit" class="btn btn-primary" value="Change password">
+    </form>
+
+    <br><br>
+    <h3>Danger Zone</h3>
+    <hr>
+    <!-- Button trigger modal -->
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccount">
+    Delete my account
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteAccount" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete my account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you would like delete your account? All your data will be erased. This cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Nope, nevermind</button>
+        <form action="{% url 'delete_account' %}" method="post">
+            {% csrf_token %}
+            <input class="btn btn-danger" type="submit" value="Yes, get rid of it!">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br>
+<br>
+<p><a href="{% url 'privacy_policy' %}">Privacy Policy</a></p>
+
+{% endblock body %}
+

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+		<title>Half Empty</title>
+        
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8"/>
+  
+        <!-- Bootsrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+        
+        <!-- favicon -->
+        <link rel="shortcut icon" type="image/ico" href="static/todo/favicon.ico"/>
+
+        <!-- Fontawesome -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+        <!-- Quill -->
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+        <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+        <!-- Load React. -->
+        <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+        <!-- css -->
+        <link href="static/todo/todo.css" rel="stylesheet">
+        
+        <!-- js -->
+        <script src="static/todo/todo.js"></script>
+        <script type="text/babel" src="static/todo/react.js"></script>
+
+	</head>
+	<body>
+		<nav id="nav" class="navbar bg-gradient sinfo">
+            <div class="row">
+                <div id="logo" style="margin-bottom: 10px;">
+                    <h1>Half-Empty <i class="fas fa-glass-whiskey"></i></h1>
+                    <h6>the pessimist's to-do app</h6>
+                </div>
+            </div>
+            <div id="links">
+                {% if user.is_authenticated %}
+                <div>
+                    <a class="btn btn-outline-light block" href="{% url 'index' %}"><i class="fas fa-list-ul"></i> Today's meaningless tasks</a>
+                </div>
+                <div>
+                    <a class="btn btn-outline-light block" href="{% url 'logbook' %}"><i class="fas fa-book-dead"></i> Logbook</a>
+                </div>
+                <div>
+                    <a class="btn btn-outline-light block" href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Hey, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</a>
+                </div>
+                <div>
+                    <a class="btn btn-outline-light block" href="{% url 'logout' %}"><i class="fas fa-angry"></i> Screw this (Logout)</a>
+                </div>
+                {% endif %}
+            </div>
+            <div id="mobile-links" class="container-fluid" style="padding-bottom: 8px;">
+                <button style="color: whitesmoke;" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-caret-square-down" style="color: whitesmoke; "></i> Menu
+            </div>
+            <div class="collapse" id="navbarToggleExternalContent">
+                <a class="btn btn-outline-light block" href="{% url 'index' %}"><i class="fas fa-list-ul"></i> Today's meaningless tasks</a>
+                <a class="btn btn-outline-light block" href="{% url 'logbook' %}"><i class="fas fa-book-dead"></i> Logbook</a>
+                <a class="btn btn-outline-light block" href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Hey, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</a>
+                <a class="btn btn-outline-light block" href="{% url 'logout' %}"><i class="fas fa-angry"></i> Screw this (Logout)</a>
+            </div>
+            <input style="display: none;" id="light-color" type="text" value="{{ user.light_color }}">
+            <input style="display: none;" id="dark-color" type="text" value="{{ user.dark_color }}">
+        </nav>
+        <div class="body">
+            {% block body %}
+            {% endblock %}
+        </div>
+	</body>
+</html>

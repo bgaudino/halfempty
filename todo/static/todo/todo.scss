@@ -1,0 +1,307 @@
+$dark: #0d0d0d;
+$light: #f4f5f2;
+
+/* options #101b15 #f2eeee */
+body {
+    font-family: monospace;
+    background-color: $light;
+  }
+  
+  textarea {
+    resize: none;
+  }
+  
+  .accordion-button {
+    gap: 10px;
+    background-color: inherit;
+    border: none;
+  }
+  
+  .accordion-body {
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+  }
+  
+  .accordion-collapse {
+    background-color: white;
+    border: none;
+  }
+  
+  .accordion-header {
+    display: flex !important;
+    border: none;
+  }
+  
+  .accordion-item {
+    word-wrap: break-word;
+    overflow: hidden;
+    border: none;
+  }
+  
+  .accordion-item:hover {
+    background-color: white;
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+  }
+  
+  .badge {
+    opacity: 0.8;
+    vertical-align: baseline;
+    border: 1px solid $dark;
+    color: $dark;
+  }
+  
+  .block {
+    color: $light;
+    border: none;
+    border-radius: 0;
+    text-align: left;
+    font-size: medium;
+    width: 100%;
+    margin: auto;
+  }
+  
+  .body {
+    margin: 20px auto;
+    max-width: 900px;
+  }
+  
+  .check {
+    padding: 0 12px;
+    font-size: large;
+  }
+
+
+  .editor {
+    min-height: 120px;
+  }
+  
+  .friend {
+    background-color: white;
+    color: $dark;
+  }
+  
+  .hidden-notes {
+    display: none;
+  }
+  
+  .input-group {
+    margin-top: 6px;
+  }
+  
+  .list-group-item {
+    padding-right: 0;
+    font-weight: bolder;
+  }
+  
+  .mobile-links {
+    display: none;
+  }
+  
+  .notes {
+    width: 100%;
+    overflow: hidden;
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .page-link {
+    font-size: large;
+    color: #0d6efd;
+    background-color: $light;
+  }
+  
+  .page-link:hover {
+    background-color: #0d6efd;
+    color: $light;
+  }
+  
+  .row {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .taglink {
+    opacity: 0.8;
+    border: 0.5px solid $dark;
+    color: $dark;
+  }
+  
+  .taglink:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  
+  .task {
+    font-size: x-large;
+    align-self: center;
+    margin: 20px 8px 20px 10px;
+  }
+  
+  .title-edit {
+    display: none;
+  }
+  
+  #add-task, #save {
+    width: 100%;
+    border-radius: 0;
+  }
+  
+  #boring {
+    visibility: hidden;
+    margin: auto;
+    animation-name: grow;
+    animation-iteration-count: 1;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+    animation-play-state: paused;
+  }
+  
+  #links {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100vw;
+  }
+  
+  #mobile-links {
+    display: none;
+  }
+  
+  #nav {
+    background-color: $dark;
+    color: $light;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    width: 100vw;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+  }
+  
+  #navbarToggleExternalContent {
+    gap: 8px;
+  }
+  
+  #taglinks {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  
+  #task-form-grow {
+    background-color: white;
+    animation-name: grow;
+    animation-duration: 0.25s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 1;
+  }
+  
+  #title {
+    font-size: xx-large;
+  }
+  
+  #today, #today:hover {
+    color: $dark;
+    background-color: white;
+  }
+  
+  @keyframes check-off {
+    0% {
+      opacity: 1;
+      height: 60px;
+    }
+    50% {
+      opacity: 0;
+      height: 60px;
+  
+    }
+    100% {
+      opacity: 0;
+      height: 0;
+    }
+  }
+  @keyframes delete-tag {
+    0% {
+      opacity: 1;
+      height: 60px;
+      padding: 10px 0 0 20px;
+      margin: 0;
+    }
+    50% {
+      opacity: 0;
+      height: 60px;
+      padding: 10px 0 0 20px;
+      margin: 0;
+    }
+    100% {
+      opacity: 0;
+      height: 0;
+      padding: 0 0 0 0;
+      margin: 0;
+    }
+  }
+  
+  @keyframes show {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes grow {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+  @keyframes shrink {
+    from {
+      transform: scale(1);
+      transform: padding(1);
+      transform: line-height(1);
+      transform: margin(1);
+      height: 100%;
+    }
+    to {
+      transform: scale(0);
+      transform: padding(0);
+      transform: line-height(0);
+      transform: margin(0);
+      height: 0px;
+    }
+  }
+  @media (max-width: 720px) {
+    .body {
+      margin: 20px 8px;
+    }
+  
+    .form-control {
+      width: 100%;
+    }
+  
+    #links {
+      display: none;
+    }
+  
+    #mobile-links {
+      display: block;
+    }
+  
+    #navbarToggleExternalContent {
+      display: 'block';
+    }
+  }
+
+  

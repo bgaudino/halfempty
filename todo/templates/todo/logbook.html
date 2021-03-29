@@ -1,0 +1,102 @@
+{% extends 'todo/layout.html' %}
+
+{% block body %}
+  <h2>Logbook</h2><hr>
+
+  {% if not tasks %}
+    Wow, you've done absolutely nothing with you life.
+  {% endif %}
+  
+<div class="accordion" id="accordion">
+    {% for task in tasks %}
+        {% if task.date_header %}<h5>{{ task.date_header }}</h5>{% endif %}
+        <div class="accordion-item" id="accordion{{ task.id }}">
+            <h2 class="accordion-header" id="flush-heading{{ task.id }}" style="display: flex;">
+            <input type="checkbox" id="check{{task.id}}" class="form-check-input task" onchange="checkOff({{ task.id}}); return false;" {% if task.done %} checked {% endif %}>
+            <button class="accordion-button collapsed" id="button{{ task.id }}"type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ task.id }}" aria-expanded="false" aria-controls="flush-collapse{{ task.id }}" onclick="editTask({{ task.id }}); return false;">
+                <div id="title{{ task.id }}">{{ task.title }}</div>
+
+                <div class="badge" style="background-color: {{ task.label.color }};">{{ task.label.name }}</div>
+            </button>
+            </h2>
+            <div id="flush-collapse{{ task.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ task.id }}" data-bs-parent="#accordion">
+                <div class="accordion-body">
+                    <form action="{% url 'update' task.id %}" method="post">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        {% csrf_token %}
+                        Title:
+                        <div class="input-group">
+                            <input id="title-form{{ task.id }}"type="text" name="title" class="form-control" value="{{ task.title }}">
+                            <a class="btn btn-outline-primary" href="{% url 'open_page' task.id %}">Open as page</a>
+                        </div>
+                        Notes:
+                        <div id="editor{{ task.id }}" class="editor">
+                            {{ task.description | safe }}
+                        </div>                           
+                        <input name="description" type="text" value="{{ task.description }}" class="hidden-notes">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-share-square"></i></span>
+                            <input name="recipient" class="form-control" placeholder="username" autocomplete="off" list="friends">
+                            <datalist id="friends">
+                                {% for friend in friends %}
+                                    <option value="{{ friend.requester.username }}">
+                                {% endfor %}
+                            </datalist>
+                            <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                            <input name="tag" id="label{{ task.id }}" class="form-control" list="datalistOptions" autocomplete="off" placeholder="Label" {% if task.label %}value="{{ task.label.name }}"{% endif %}>
+                            <datalist id="datalistOptions">
+                                <datalist id="datalistOptions">
+                                    {% for label in labels %}
+                                        {% if label != None %}
+                                            <option value="{{ label.name }}">
+                                        {% endif %}
+                                    {% endfor %}
+                                </datalist>
+                            </datalist>
+                            <input class="form-control" name="date" type="date" value="{{ task.formatted_date }}">
+                            <input type="submit" class="btn btn-primary update" value="Update">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>           
+    {% endfor %}
+</div>
+  <hr>
+  <div class="pagination">
+    <span class="step-links">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+        {% if tasks.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ tasks.previous_page_number }}">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+            {% if tasks.previous_page_number != 1 %}
+                <li class="page-item"><a class="page-link" href="?page={{ tasks.previous_page_number }}">{{ tasks.previous_page_number }}</a></li>    
+            {% endif %}
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+            </li>
+        {% endif %}
+
+        <span class="current">
+            <li class="page-item active" aria-current="page">
+                <a class="page-link">{{ tasks.number }}</a>
+            </li>
+        </span>
+
+        {% if tasks.has_next %}
+            {% if tasks.next_page_number != tasks.paginator.num_pages %}
+                <li class="page-item"><a class="page-link" href="?page={{ tasks.next_page_number }}">{{ tasks.next_page_number }}</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="?page={{ tasks.paginator.num_pages }}">{{ tasks.paginator.num_pages }}</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ tasks.next_page_number }}">Next</a></li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+            </li>
+        {% endif %}
+            </ul>
+        </nav>
+    </span>
+{% endblock %}

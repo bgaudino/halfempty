@@ -1,0 +1,29 @@
+{% extends 'todo/layout.html' %}
+
+{% block body %}
+    <form action="{% url 'update' task.id %}" method="post">
+        {% csrf_token %}
+    <div class="input-group">
+        <input style="font-size: xx-large;" id="title-form{{ task.id }}"type="text" name="title" class="form-control" value="{{ task.title }}">
+    </div>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-share-square"></i></span>
+        <input name="recipient" class="form-control" placeholder="username">
+        <span class="input-group-text"><i class="fas fa-tag"></i></span>
+        <input name="tag" id="label" class="form-control" list="datalistOptions" autocomplete="off" placeholder="Label" {% if task.label %} value="{{ task.label }}" {% endif %}>
+        <datalist id="datalistOptions">
+            {% for tag in all_tags %}
+                <option value="{{ tag }}">
+            {% endfor %}
+        </datalist>
+        <input class="form-control" name="date" type="date" value="{{ task.formatted_date }}">
+    </div>
+    <div id="editor{{ task.id }}" style="height: 60vh; background-color: white;" class="editor page-editor">
+        {% if task.description != None %}
+            {{ task.description | safe }}
+        {% endif %}
+    </div>                           
+    <input name="description" type="text" value="{{ task.description }}" class="hidden-notes">   
+    <input id="save" type="submit" class="btn btn-outline-primary" value="Save">
+    </form>
+{% endblock %}
