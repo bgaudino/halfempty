@@ -96,10 +96,6 @@ This file contains JSX and the React Component that is used to add new tasks.
 Half-Empty uses Bootstrap to help style the app, React to create and render task components, and Quill to render rich text editors. Many icons from Font Awesome were also used. 
 
 
-### App name
-
-The working title for Half-Empty was procrastinate. You will see many files and folders with that name.
-
 
 
 
